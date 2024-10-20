@@ -1,6 +1,5 @@
 from tortoise import fields, models
 from tortoise.models import Model
-from enum import Enum
 
 class File(Model): # Файл
     file_id = fields.IntField(pk=True)

@@ -14,15 +14,26 @@ from tortoise.contrib.pydantic import pydantic_model_creator
 from typing import List, Dict, Any
 from pydantic import BaseModel
 from tortoise.transactions import in_transaction
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = ['*']
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 classes = [cls for name, cls in inspect.getmembers(models_dpo, inspect.isclass)]
 # TODO: доделать маппинг
 class_maping = {'File': models_dpo.File}
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
 
+# TODO: сделать норм авторизацию и эндпоинт /auth
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     ACCESS_TOKEN = "secret_token_123"
     print(token)
@@ -35,9 +46,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return token
 
     
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.get("/ping")
+def ping():
+    return {'success': True}
 
 
 @app.get("/api/entities")
@@ -104,7 +115,7 @@ async def update_entity(
         else:
             await cls.create(**query)
             print('создали объект')
-    return {'Успех': 'да'}
+    return {'success': True}
 
 
 @app.delete("/api/entry")
@@ -120,7 +131,7 @@ async def delete_entity(
     async with in_transaction():
         await cls.filter(**filter).limit(limit).delete()
         
-    return {"победа": "ура"}
+    return {'success': True}
        
     
 register_tortoise(
@@ -131,6 +142,4 @@ register_tortoise(
     add_exception_handlers=True,
 )   
 
-
 #  uvicorn main:app --reload
-

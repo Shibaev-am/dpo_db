@@ -1,7 +1,7 @@
-from tortoise import fields, models
+from tortoise import fields
 from tortoise.models import Model
 
-class User(Model):
+class User(Model): # Пользователь
     id = fields.IntField(pk=True)
     
     login = fields.CharField(max_length=255, null=False)
@@ -12,11 +12,11 @@ class User(Model):
         schema = "dpo"
         
         
-class RefreshToken(Model):
+class RefreshToken(Model): # Refresh token
     token = fields.CharField(pk=True, max_length=255)
     
     valid_untill = fields.DateField(null=False)
-    user_id = fields.ForeignKeyField(
+    user = fields.ForeignKeyField(
         'models.User',
         related_name='token',
         null=False,

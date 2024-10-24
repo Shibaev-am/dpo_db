@@ -11,3 +11,6 @@ TORTOISE_ORM = {
         },
     }
 }
+
+JWT_SECRET = "53660323d357e45a896861effb034cd95dd752fa2b6443a1860789dfcb8a6cea"
+JWT_EXPIRE = 10080 # 1 week

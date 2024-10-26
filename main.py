@@ -2,13 +2,14 @@ import asyncio
 import jwt
 from tortoise import Tortoise, run_async, connections
 import models_dpo
-from config import JWT_EXPIRE, JWT_SECRET, TORTOISE_ORM
+from config import JWT_EXPIRE, JWT_SECRET, ACCESS_EXPIRE, TORTOISE_ORM
 import os
 import inspect
-# from cachetools import TTLCache
+from cachetools import TTLCache
 import bcrypt
 import secrets
 from datetime import datetime, timedelta, timezone
+import hashlib
 
 from fastapi import FastAPI, Query
 from fastapi import FastAPI, Depends, HTTPException, status
@@ -39,31 +40,27 @@ app = FastAPI()
 class_maping = {name: cls for name, cls in inspect.getmembers(models_dpo, inspect.isclass)}
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth")
-# cache = TTLCache(maxsize=1024, ttl=600)
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+cache = TTLCache(maxsize=1024, ttl=ACCESS_EXPIRE)
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    try:
-        decoded = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-        user = await User.filter(login=decoded["login"]).first()
-        if user:
-            return user
-    except Exception as e:
-        pass
+    if token in cache:
+        return token
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail={'error': 'Invalid token'},
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    
+
 @app.get("/api/test_token")
-def ping(user: User = Depends(get_current_user)):
+def ping(token: str = Depends(get_current_user)):
     return {'success': True}
 
 
 @app.get("/api/entities")
-async def get_tables(user: User = Depends(get_current_user)):
+async def get_tables(token: str = Depends(get_current_user)):
     result = {}
     for name, cls in class_maping.items():
         if name == "Model":
@@ -71,7 +68,7 @@ async def get_tables(user: User = Depends(get_current_user)):
         PydanticModel = pydantic_model_creator(cls)
         model_meta = PydanticModel.model_json_schema()
         result[name] = model_meta
-    print(result)
+    # print(result)
     return result
 
 
@@ -84,7 +81,7 @@ async def get_entries(
         page: int = Query(1, ge=1),
         page_size: int = Query(10, ge=1, le=100),
         entity_data: Selector = None,
-        user: User = Depends(get_current_user)
+        token: str = Depends(get_current_user)
     ):
     filter = entity_data.selector
     cls = class_maping[entity]
@@ -103,28 +100,42 @@ async def get_entries(
     return {'entries': result, 'pages': page}
 
 
-@app.post("/api/auth")
-async def auth_user(payload: OAuth2PasswordRequestForm = Depends()):
+def hash_password_sha256(password: str) -> str:
+    sha256_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    return sha256_hash
 
-    psw = payload.password.encode('utf-8')
-    login = payload.username
+def check_password(password: str, hashed: str) -> bool:
+    return hash_password_sha256(password) == hashed
+
+class AuthCredentials(BaseModel):
+    login: str
+    password: str
+
+@app.post("/api/auth")
+async def auth_user(payload: AuthCredentials):
+
+    psw = payload.password
+    login = payload.login
     
     user = await User.filter(login=login).first()
+    
+    # print(hash_password_sha256(psw))
 
     if user:
-        password = user.password.encode('utf-8')
-        if bcrypt.checkpw(psw, password):
+        if check_password(psw, user.password):
             # победа
-            refresh_token = secrets.token_hex(32)
+            refresh_token = secrets.token_hex(64)
             valid_until = datetime.now().date() + timedelta(weeks=1)
-            expires = datetime.now(timezone.utc) + + timedelta(minutes=JWT_EXPIRE)
+            expires = datetime.now(timezone.utc) + timedelta(minutes=JWT_EXPIRE)
             token = jwt.encode({"login": user.login, "exp": expires}, JWT_SECRET, algorithm="HS256")
+            cache[token] = user.id
             await RefreshToken.create(
                 token=refresh_token,
                 valid_untill=valid_until,
                 user_id=user.id
             )
-            
+            print('auth:')
+            print({'access_token': token, 'refresh_token': refresh_token})
             return {'access_token': token, 'refresh_token': refresh_token}
         
     raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -148,10 +159,13 @@ async def refresh_tkn(
     ref_tkn = await RefreshToken.filter(token=old_token).first()
     user_id = ref_tkn.user_id
     
-    new_token = secrets.token_hex(32)
-    new_refresh_token = secrets.token_hex(32)
-    # cache[new_token] = user_id
+    new_refresh_token = secrets.token_hex(64)
+    user = await User.get(id=user_id)
+    
     valid_until = datetime.now().date() + timedelta(weeks=1)
+    expires = datetime.now(timezone.utc) + timedelta(minutes=JWT_EXPIRE)
+    new_token = jwt.encode({"login": user.login, "exp": expires}, JWT_SECRET, algorithm="HS256")
+    cache[new_token] = user_id
     
     await RefreshToken.create(
         token=new_refresh_token,
@@ -159,6 +173,8 @@ async def refresh_tkn(
         user_id=user_id
     )
     await ref_tkn.delete()
+    print('refresh_token:')
+    print({'access_token': new_token, 'refresh_token': new_refresh_token})
     return {'access_token': new_token, 'refresh_token': new_refresh_token}    
 
 
@@ -169,12 +185,14 @@ class Entries(BaseModel):
 async def update_entity(
     entity: str = Query(...),
     entries: Entries = None,
-    user: User = Depends(get_current_user)
+    token: str = Depends(get_current_user)
 ):  
+    print(entity)
     queries = entries.entries
     for query in queries:
         cls = class_maping[entity]
         primary_key_field = cls._meta.pk_attr
+        print(primary_key_field)
         if primary_key_field in query:
             old_object = await cls.get(file_id=query[primary_key_field])
             query.pop(primary_key_field)
@@ -192,7 +210,7 @@ async def delete_entity(
     entity: str = Query(...),
     limit: int = Query(1, ge=1),
     entity_data: Selector = None,
-    user: User = Depends(get_current_user)
+    token: str = Depends(get_current_user)
 ):  
     filter = entity_data.selector
     cls = class_maping[entity]
@@ -212,4 +230,4 @@ register_tortoise(
 )   
 
 #  uvicorn main:app --reload
-# рабочий хэш для пароля admin          $2b$12$.tchUnLsKBVDNEJ95H5c4ObZsmBql3z2pAoE/6e82/ztoyEBecCVe
+# рабочий хэш(SHA256) для пароля admin          8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918

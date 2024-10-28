@@ -1,19 +1,85 @@
-version: '3.8'
-
 services:
-  db:
-    image: postgres:15
-    container_name: dpo
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: dpo_db
-    ports:
-      - "9090:5432"
+  postgres-production:
+    container_name: postgres_production
+    image: postgres
+    restart: always
+    env_file:
+      - .production.env
     volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    restart: unless-stopped
-    
+      - postgres-production-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - bridge
+    profiles:
+      - production
+      - production-storage
+
+  postgres-development:
+    container_name: postgres_development
+    image: postgres
+    restart: no
+    env_file:
+      - .development.env
+    volumes:
+      - postgres-development-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - bridge
+    profiles:
+      - development
+      - development-storage
+
+  backend-production:
+    container_name: backend_production
+    build:
+      context: .
+      args:
+        - MODE=production
+    ports:
+      - "9000:9000"
+    restart: always
+    volumes:
+      - .:/app
+    env_file:
+      - .production.env
+    environment:
+      - MODE=production
+    depends_on:
+      - postgres-production
+    networks:
+      - bridge
+    profiles:
+      - production
+
+  backend-development:
+    container_name: backend_development
+    build:
+      context: .
+      args:
+        - MODE=development
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/app
+    env_file:
+      - .development.env
+    environment:
+      - MODE=development
+    depends_on:
+      - postgres-development
+    networks:
+      - bridge
+    profiles:
+      - development
+
+networks:
+  bridge:
+    driver: bridge
+
 volumes:
-  pgdata:
+  postgres-production-data:
+  postgres-development-data:
+  redis-development-data:
+  redis-production-data:

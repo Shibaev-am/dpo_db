@@ -1,0 +1,6 @@
+10-28-24 21:38:23 INFO: [main] Loading Tortoise ORM...
+10-28-24 21:38:24 DEBUG: 1 change detected: {(<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/logs/10-28-2024 21:38:24.log')}
+10-28-24 21:38:24 DEBUG: 1 change detected: {(<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/logs/10-28-2024 21:38:24.log')}
+10-28-24 21:38:52 DEBUG: 1 change detected: {(<Change.modified: 2>, '/Users/mikhail/Projects/dpo_db/src/main.py')}
+10-28-24 21:38:53 DEBUG: 3 changes detected: {(<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/src/__pycache__/main.cpython-312.pyc'), (<Change.deleted: 3>, '/Users/mikhail/Projects/dpo_db/src/__pycache__/main.cpython-312.pyc.4450903168'), (<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/src/__pycache__/main.cpython-312.pyc.4450903168')}
+10-28-24 21:38:53 DEBUG: 1 change detected: {(<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/logs/10-28-2024 21:38:53.log')}

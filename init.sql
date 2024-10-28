@@ -1,1 +1,0 @@
-CREATE SCHEMA IF not exists dpo;

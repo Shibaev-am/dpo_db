@@ -1,0 +1,4 @@
+10-28-24 21:38:24 INFO: [main] Loading Tortoise ORM...
+10-28-24 21:38:24 DEBUG: Tortoise-ORM startup
+    connections: {'default': {'engine': 'tortoise.backends.asyncpg', 'credentials': {'port': 9090, 'schema': 'dpo', 'database': 'dpo_db', 'host': 'localhost', 'user': 'postgres', 'password': '1***'}}}
+    apps: {'models': {'models': ['models_dpo', 'models_system'], 'default_connection': 'default'}}

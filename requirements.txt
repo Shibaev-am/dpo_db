@@ -1,0 +1,5 @@
+tortoise-orm==0.21.5
+asyncpg==0.29.0
+fastapi[standard]
+PyJWT==1.7.1
+bcrypt==4.2.0

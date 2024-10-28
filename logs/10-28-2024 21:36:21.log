@@ -1,0 +1,5 @@
+10-28-24 21:36:37 DEBUG: 1 change detected: {(<Change.modified: 2>, '/Users/mikhail/Projects/dpo_db/.git/FETCH_HEAD')}
+10-28-24 21:36:38 DEBUG: 3 changes detected: {(<Change.modified: 2>, '/Users/mikhail/Projects/dpo_db/.git/FETCH_HEAD'), (<Change.deleted: 3>, '/Users/mikhail/Projects/dpo_db/.git/objects/maintenance.lock'), (<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/.git/objects/maintenance.lock')}
+10-28-24 21:37:23 DEBUG: 1 change detected: {(<Change.modified: 2>, '/Users/mikhail/Projects/dpo_db/src/main.py')}
+10-28-24 21:37:24 DEBUG: 3 changes detected: {(<Change.deleted: 3>, '/Users/mikhail/Projects/dpo_db/src/__pycache__/main.cpython-312.pyc.4391134336'), (<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/src/__pycache__/main.cpython-312.pyc'), (<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/src/__pycache__/main.cpython-312.pyc.4391134336')}
+10-28-24 21:37:24 DEBUG: 1 change detected: {(<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/logs/10-28-2024 21:37:24.log')}

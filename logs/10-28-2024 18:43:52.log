@@ -1,0 +1,645 @@
+10-28-24 18:43:52 INFO: [main] Loading Tortoise ORM...
+10-28-24 18:43:52 DEBUG: Tortoise-ORM startup
+    connections: {'default': {'engine': 'tortoise.backends.asyncpg', 'credentials': {'port': 5432, 'database': 'example', 'host': 'postgres_development', 'user': 'user', 'pa***': 'pa***'}}}
+    apps: {'models': {'models': ['models.dpo', 'models.system'], 'default_connection': 'default'}}
+10-28-24 18:43:52 INFO: Tortoise-ORM started, {'default': <tortoise.backends.asyncpg.client.AsyncpgDBClient object at 0xffffa93a1c10>}, {'models': {'Acquiring': <class 'models.dpo.Acquiring'>, 'Annotation': <class 'models.dpo.Annotation'>, 'ApprovedProgram': <class 'models.dpo.ApprovedProgram'>, 'BaseModel': <class 'models.base.BaseModel'>, 'ClassSchedule': <class 'models.dpo.ClassSchedule'>, 'Client': <class 'models.dpo.Client'>, 'ClientEducationalProgram': <class 'models.dpo.ClientEducationalProgram'>, 'ClientEducationalProgramInterimOrder': <class 'models.dpo.ClientEducationalProgramInterimOrder'>, 'ClientFinance': <class 'models.dpo.ClientFinance'>, 'ClientGrade': <class 'models.dpo.ClientGrade'>, 'ClientParent': <class 'models.dpo.ClientParent'>, 'ClientType': <class 'models.dpo.ClientType'>, 'DocumentType': <class 'models.dpo.DocumentType'>, 'EducationLevel': <class 'models.dpo.EducationLevel'>, 'EducationalProgram': <class 'models.dpo.EducationalProgram'>, 'EducationalProgramModule': <class 'models.dpo.EducationalProgramModule'>, 'EducationalProgramStatus': <class 'models.dpo.EducationalProgramStatus'>, 'EducationalProgramType': <class 'models.dpo.EducationalProgramType'>, 'File': <class 'models.dpo.File'>, 'FinancialTransaction': <class 'models.dpo.FinancialTransaction'>, 'InPersonReceipt': <class 'models.dpo.InPersonReceipt'>, 'LearningForm': <class 'models.dpo.LearningForm'>, 'ProgramStream': <class 'models.dpo.ProgramStream'>, 'ProgramStreamCurator': <class 'models.dpo.ProgramStreamCurator'>, 'ProgramStreamManager': <class 'models.dpo.ProgramStreamManager'>, 'ProgramStreamTeacher': <class 'models.dpo.ProgramStreamTeacher'>, 'RegistrationForm': <class 'models.dpo.RegistrationForm'>, '_SystemUser': <class 'models.system._SystemUser'>}}
+10-28-24 18:43:52 INFO: Tortoise-ORM generating schema
+10-28-24 18:43:52 DEBUG: Creating schema: CREATE TABLE IF NOT EXISTS "acquiring" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "acquiring"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "acquiring"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "basemodel" (
+    "id" SERIAL NOT NULL PRIMARY KEY
+);
+CREATE TABLE IF NOT EXISTS "client" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "last_name" VARCHAR(255) NOT NULL,
+    "first_name" VARCHAR(255) NOT NULL,
+    "middle_name" VARCHAR(255) NOT NULL,
+    "birth_date" DATE NOT NULL,
+    "email" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "client"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "client"."last_name" IS 'Фамилия';
+COMMENT ON COLUMN "client"."first_name" IS 'Имя';
+COMMENT ON COLUMN "client"."middle_name" IS 'Отчество';
+COMMENT ON COLUMN "client"."birth_date" IS 'Дата рождения';
+COMMENT ON COLUMN "client"."email" IS 'Электронная почта';
+CREATE TABLE IF NOT EXISTS "clientparent" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "parent_name" VARCHAR(255) NOT NULL,
+    "client_id" INT NOT NULL REFERENCES "client" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "clientparent"."parent_name" IS 'Имя родителя';
+COMMENT ON COLUMN "clientparent"."client_id" IS 'Клиент';
+CREATE TABLE IF NOT EXISTS "clienttype" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "clienttype"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "clienttype"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "documenttype" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "documenttype"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "documenttype"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "educationlevel" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "educationlevel"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "educationlevel"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "educationalprogramstatus" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "status_name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "educationalprogramstatus"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "educationalprogramstatus"."status_name" IS 'Название статуса';
+CREATE TABLE IF NOT EXISTS "educationalprogramtype" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "educationalprogramtype"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "educationalprogramtype"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "file" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "url" VARCHAR(4096) NOT NULL
+);
+COMMENT ON COLUMN "file"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "file"."name" IS 'Имя';
+COMMENT ON COLUMN "file"."url" IS 'Ссылка';
+CREATE TABLE IF NOT EXISTS "clientfinance" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "amount" DECIMAL(10,2),
+    "date" DATE,
+    "act_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "client_id" INT NOT NULL REFERENCES "client" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "clientfinance"."amount" IS 'Сумма';
+COMMENT ON COLUMN "clientfinance"."date" IS 'Дата';
+COMMENT ON COLUMN "clientfinance"."act_id" IS 'Акт';
+COMMENT ON COLUMN "clientfinance"."client_id" IS 'Клиент';
+CREATE TABLE IF NOT EXISTS "financialtransaction" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "amount" DECIMAL(10,2) NOT NULL,
+    "transaction_date" DATE NOT NULL,
+    "fls" DECIMAL(10,2) NOT NULL,
+    "nds" DECIMAL(10,2) NOT NULL,
+    "amount_on_fls" DECIMAL(10,2) NOT NULL
+);
+COMMENT ON COLUMN "financialtransaction"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "financialtransaction"."amount" IS 'Сумма';
+COMMENT ON COLUMN "financialtransaction"."transaction_date" IS 'Дата транзакции';
+COMMENT ON COLUMN "financialtransaction"."fls" IS 'ФЛС';
+COMMENT ON COLUMN "financialtransaction"."nds" IS 'НДС';
+COMMENT ON COLUMN "financialtransaction"."amount_on_fls" IS 'Сумма на ФЛС';
+CREATE TABLE IF NOT EXISTS "inpersonreceipt" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "tracking_number" VARCHAR(255),
+    "client_id" INT NOT NULL REFERENCES "client" ("id") ON DELETE CASCADE,
+    "signed_document_id" INT REFERENCES "file" ("id") ON DELETE SET NULL
+);
+COMMENT ON COLUMN "inpersonreceipt"."tracking_number" IS 'Номер отслеживания';
+COMMENT ON COLUMN "inpersonreceipt"."client_id" IS 'Клиент';
+COMMENT ON COLUMN "inpersonreceipt"."signed_document_id" IS 'Подписанный документ';
+CREATE TABLE IF NOT EXISTS "learningform" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "learningform"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "learningform"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "educationalprogram" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "date" DATE,
+    "quantity" INT,
+    "description" VARCHAR(255),
+    "fgos" VARCHAR(255),
+    "organizers" VARCHAR(255),
+    "price" DECIMAL(10,2),
+    "end_date" DATE,
+    "start_date" DATE,
+    "document_type_id" INT REFERENCES "documenttype" ("id") ON DELETE SET NULL,
+    "landing_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "learning_form_id" INT NOT NULL REFERENCES "learningform" ("id") ON DELETE CASCADE,
+    "presentation_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "program_type_id" INT NOT NULL REFERENCES "educationalprogramtype" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "educationalprogram"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "educationalprogram"."name" IS 'Название';
+COMMENT ON COLUMN "educationalprogram"."date" IS 'Дата';
+COMMENT ON COLUMN "educationalprogram"."quantity" IS 'Количество';
+COMMENT ON COLUMN "educationalprogram"."description" IS 'Описание';
+COMMENT ON COLUMN "educationalprogram"."fgos" IS 'ФГОС';
+COMMENT ON COLUMN "educationalprogram"."organizers" IS 'Организаторы';
+COMMENT ON COLUMN "educationalprogram"."price" IS 'Цена';
+COMMENT ON COLUMN "educationalprogram"."end_date" IS 'Дата окончания';
+COMMENT ON COLUMN "educationalprogram"."start_date" IS 'Дата начала';
+COMMENT ON COLUMN "educationalprogram"."document_type_id" IS 'Тип документа';
+COMMENT ON COLUMN "educationalprogram"."landing_id" IS 'Лендинг';
+COMMENT ON COLUMN "educationalprogram"."learning_form_id" IS 'Форма обучения';
+COMMENT ON COLUMN "educationalprogram"."presentation_id" IS 'Презентация';
+COMMENT ON COLUMN "educationalprogram"."program_type_id" IS 'Тип образовательной программы';
+CREATE TABLE IF NOT EXISTS "annotation" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "approval_date" DATE NOT NULL,
+    "document_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE,
+    "educational_program_id" INT NOT NULL REFERENCES "educationalprogram" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "annotation"."approval_date" IS 'Дата утверждения';
+COMMENT ON COLUMN "annotation"."document_id" IS 'Документ';
+COMMENT ON COLUMN "annotation"."educational_program_id" IS 'Образовательная программа';
+CREATE TABLE IF NOT EXISTS "educationalprogrammodule" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "academic_hours" INT NOT NULL,
+    "educational_program_id" INT NOT NULL REFERENCES "educationalprogram" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "educationalprogrammodule"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "educationalprogrammodule"."name" IS 'Название';
+COMMENT ON COLUMN "educationalprogrammodule"."academic_hours" IS 'Академические часы';
+COMMENT ON COLUMN "educationalprogrammodule"."educational_program_id" IS 'Образовательная программа';
+CREATE TABLE IF NOT EXISTS "clientgrade" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "grade" INT,
+    "quantity" INT,
+    "client_id" INT NOT NULL REFERENCES "client" ("id") ON DELETE CASCADE,
+    "program_module_id" INT NOT NULL REFERENCES "educationalprogrammodule" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "clientgrade"."grade" IS 'Оценка';
+COMMENT ON COLUMN "clientgrade"."quantity" IS 'Количество';
+COMMENT ON COLUMN "clientgrade"."client_id" IS 'Клиент';
+COMMENT ON COLUMN "clientgrade"."program_module_id" IS 'Модуль образовательной программы';
+CREATE TABLE IF NOT EXISTS "programstream" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "number" VARCHAR(50),
+    "date" DATE,
+    "educational_program_id" INT NOT NULL REFERENCES "educationalprogram" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "programstream"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "programstream"."number" IS 'Номер';
+COMMENT ON COLUMN "programstream"."date" IS 'Дата';
+COMMENT ON COLUMN "programstream"."educational_program_id" IS 'Образовательная программа';
+CREATE TABLE IF NOT EXISTS "approvedprogram" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "approval_date" DATE NOT NULL,
+    "document_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE,
+    "program_stream_id" INT NOT NULL REFERENCES "programstream" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "approvedprogram"."approval_date" IS 'Дата утверждения';
+COMMENT ON COLUMN "approvedprogram"."document_id" IS 'Документ';
+COMMENT ON COLUMN "approvedprogram"."program_stream_id" IS 'Поток образовательной программы';
+CREATE TABLE IF NOT EXISTS "classschedule" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "day_of_week" INT NOT NULL,
+    "start_time" TIMETZ NOT NULL,
+    "end_time" TIMETZ NOT NULL,
+    "program_stream_id" INT NOT NULL REFERENCES "programstream" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "classschedule"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "classschedule"."day_of_week" IS 'День недели';
+COMMENT ON COLUMN "classschedule"."start_time" IS 'Время начала';
+COMMENT ON COLUMN "classschedule"."end_time" IS 'Время окончания';
+COMMENT ON COLUMN "classschedule"."program_stream_id" IS 'Поток образовательной программы';
+CREATE TABLE IF NOT EXISTS "programstreamcurator" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "program_stream_id" INT NOT NULL REFERENCES "programstream" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "programstreamcurator"."name" IS 'Имя куратора';
+COMMENT ON COLUMN "programstreamcurator"."program_stream_id" IS 'Поток образовательной программы';
+CREATE TABLE IF NOT EXISTS "programstreammanager" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "educational_program_id" INT NOT NULL REFERENCES "educationalprogram" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "programstreammanager"."name" IS 'Имя менеджера';
+COMMENT ON COLUMN "programstreammanager"."educational_program_id" IS 'Образовательная программа';
+CREATE TABLE IF NOT EXISTS "programstreamteacher" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "program_stream_id" INT NOT NULL REFERENCES "programstream" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "programstreamteacher"."name" IS 'Имя преподавателя';
+COMMENT ON COLUMN "programstreamteacher"."program_stream_id" IS 'Поток образовательной программы';
+CREATE TABLE IF NOT EXISTS "registrationform" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "last_name" VARCHAR(255) NOT NULL,
+    "first_name" VARCHAR(255) NOT NULL,
+    "middle_name" VARCHAR(255) NOT NULL,
+    "email" VARCHAR(255) NOT NULL,
+    "birth_date" DATE NOT NULL,
+    "snils" VARCHAR(255) NOT NULL,
+    "passport_data" VARCHAR(255) NOT NULL,
+    "passport_issued_by" VARCHAR(255) NOT NULL,
+    "passport_issue_date" DATE NOT NULL,
+    "registration_address" VARCHAR(255) NOT NULL,
+    "index" VARCHAR(10) NOT NULL,
+    "actual_address" VARCHAR(255) NOT NULL,
+    "actual_index" VARCHAR(10) NOT NULL,
+    "mobile_phone" VARCHAR(20) NOT NULL,
+    "diploma_name" VARCHAR(255) NOT NULL,
+    "diploma_series" VARCHAR(20) NOT NULL,
+    "diploma_number" VARCHAR(20) NOT NULL,
+    "diploma_issue_date" DATE NOT NULL,
+    "application_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE,
+    "assessment_sheet_copy_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "diploma_copy_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE,
+    "education_level_id" INT NOT NULL REFERENCES "educationlevel" ("id") ON DELETE CASCADE,
+    "name_change_document_copy_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "passport_copy_main_page_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE,
+    "passport_copy_registration_page_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "registrationform"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "registrationform"."last_name" IS 'Фамилия';
+COMMENT ON COLUMN "registrationform"."first_name" IS 'Имя';
+COMMENT ON COLUMN "registrationform"."middle_name" IS 'Отчество';
+COMMENT ON COLUMN "registrationform"."email" IS 'Электронная почта';
+COMMENT ON COLUMN "registrationform"."birth_date" IS 'Дата рождения';
+COMMENT ON COLUMN "registrationform"."snils" IS 'СНИЛС';
+COMMENT ON COLUMN "registrationform"."passport_data" IS 'Данные паспорта';
+COMMENT ON COLUMN "registrationform"."passport_issued_by" IS 'Кем выдан паспорт';
+COMMENT ON COLUMN "registrationform"."passport_issue_date" IS 'Дата выдачи паспорта';
+COMMENT ON COLUMN "registrationform"."registration_address" IS 'Адрес регистрации';
+COMMENT ON COLUMN "registrationform"."index" IS 'Индекс';
+COMMENT ON COLUMN "registrationform"."actual_address" IS 'Фактический адрес';
+COMMENT ON COLUMN "registrationform"."actual_index" IS 'Фактический индекс';
+COMMENT ON COLUMN "registrationform"."mobile_phone" IS 'Мобильный телефон';
+COMMENT ON COLUMN "registrationform"."diploma_name" IS 'Название диплома';
+COMMENT ON COLUMN "registrationform"."diploma_series" IS 'Серия диплома';
+COMMENT ON COLUMN "registrationform"."diploma_number" IS 'Номер диплома';
+COMMENT ON COLUMN "registrationform"."diploma_issue_date" IS 'Дата выдачи диплома';
+COMMENT ON COLUMN "registrationform"."application_id" IS 'Заявление';
+COMMENT ON COLUMN "registrationform"."assessment_sheet_copy_id" IS 'Копия оценочного листа';
+COMMENT ON COLUMN "registrationform"."diploma_copy_id" IS 'Копия диплома';
+COMMENT ON COLUMN "registrationform"."education_level_id" IS 'Уровень образования';
+COMMENT ON COLUMN "registrationform"."name_change_document_copy_id" IS 'Копия документа о смене имени';
+COMMENT ON COLUMN "registrationform"."passport_copy_main_page_id" IS 'Копия главной страницы паспорта';
+COMMENT ON COLUMN "registrationform"."passport_copy_registration_page_id" IS 'Копия страницы регистрации паспорта';
+CREATE TABLE IF NOT EXISTS "clienteducationalprogram" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "postpayment" BOOL NOT NULL  DEFAULT False,
+    "comment" VARCHAR(255),
+    "date_of_enrollment_order" DATE,
+    "date_of_expulsion_order" DATE,
+    "client_id" INT NOT NULL REFERENCES "client" ("id") ON DELETE CASCADE,
+    "client_type_id" INT NOT NULL REFERENCES "clienttype" ("id") ON DELETE CASCADE,
+    "contract_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "enrollment_order_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "expulsion_order_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "program_stream_id" INT NOT NULL REFERENCES "programstream" ("id") ON DELETE CASCADE,
+    "registration_form_id" INT REFERENCES "registrationform" ("id") ON DELETE SET NULL,
+    "status_id" INT NOT NULL REFERENCES "educationalprogramstatus" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "clienteducationalprogram"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "clienteducationalprogram"."postpayment" IS 'Постоплата';
+COMMENT ON COLUMN "clienteducationalprogram"."comment" IS 'Комментарий';
+COMMENT ON COLUMN "clienteducationalprogram"."date_of_enrollment_order" IS 'Дата приказа о зачислении';
+COMMENT ON COLUMN "clienteducationalprogram"."date_of_expulsion_order" IS 'Дата приказа об отчислении';
+COMMENT ON COLUMN "clienteducationalprogram"."client_id" IS 'Клиент';
+COMMENT ON COLUMN "clienteducationalprogram"."client_type_id" IS 'Тип клиента';
+COMMENT ON COLUMN "clienteducationalprogram"."contract_id" IS 'Контракт';
+COMMENT ON COLUMN "clienteducationalprogram"."enrollment_order_id" IS 'Приказ о зачислении';
+COMMENT ON COLUMN "clienteducationalprogram"."expulsion_order_id" IS 'Приказ об отчислении';
+COMMENT ON COLUMN "clienteducationalprogram"."program_stream_id" IS 'Поток образовательной программы';
+COMMENT ON COLUMN "clienteducationalprogram"."registration_form_id" IS 'Регистрационная форма';
+COMMENT ON COLUMN "clienteducationalprogram"."status_id" IS 'Статус образовательной программы';
+CREATE TABLE IF NOT EXISTS "clienteducationalprograminterimorder" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "date" DATE,
+    "client_educational_program_id" INT NOT NULL REFERENCES "clienteducationalprogram" ("id") ON DELETE CASCADE,
+    "order_id" INT REFERENCES "file" ("id") ON DELETE SET NULL
+);
+COMMENT ON COLUMN "clienteducationalprograminterimorder"."date" IS 'Дата';
+COMMENT ON COLUMN "clienteducationalprograminterimorder"."client_educational_program_id" IS 'Образовательная программа клиента';
+COMMENT ON COLUMN "clienteducationalprograminterimorder"."order_id" IS 'Приказ';
+CREATE TABLE IF NOT EXISTS "_systemuser" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "login" VARCHAR(255) NOT NULL,
+    "password" VARCHAR(255) NOT NULL
+);
+10-28-24 18:43:52 DEBUG: Created connection pool <asyncpg.pool.Pool object at 0xffffa94b97a0> with params: {'host': 'postgres_development', 'port': 5432, 'user': 'user', 'database': 'example', 'min_size': 1, 'max_size': 5, 'connection_class': <class 'asyncpg.connection.Connection'>, 'loop': None, 'server_settings': {}}
+10-28-24 18:43:52 DEBUG: CREATE TABLE IF NOT EXISTS "acquiring" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "acquiring"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "acquiring"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "basemodel" (
+    "id" SERIAL NOT NULL PRIMARY KEY
+);
+CREATE TABLE IF NOT EXISTS "client" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "last_name" VARCHAR(255) NOT NULL,
+    "first_name" VARCHAR(255) NOT NULL,
+    "middle_name" VARCHAR(255) NOT NULL,
+    "birth_date" DATE NOT NULL,
+    "email" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "client"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "client"."last_name" IS 'Фамилия';
+COMMENT ON COLUMN "client"."first_name" IS 'Имя';
+COMMENT ON COLUMN "client"."middle_name" IS 'Отчество';
+COMMENT ON COLUMN "client"."birth_date" IS 'Дата рождения';
+COMMENT ON COLUMN "client"."email" IS 'Электронная почта';
+CREATE TABLE IF NOT EXISTS "clientparent" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "parent_name" VARCHAR(255) NOT NULL,
+    "client_id" INT NOT NULL REFERENCES "client" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "clientparent"."parent_name" IS 'Имя родителя';
+COMMENT ON COLUMN "clientparent"."client_id" IS 'Клиент';
+CREATE TABLE IF NOT EXISTS "clienttype" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "clienttype"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "clienttype"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "documenttype" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "documenttype"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "documenttype"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "educationlevel" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "educationlevel"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "educationlevel"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "educationalprogramstatus" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "status_name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "educationalprogramstatus"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "educationalprogramstatus"."status_name" IS 'Название статуса';
+CREATE TABLE IF NOT EXISTS "educationalprogramtype" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "educationalprogramtype"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "educationalprogramtype"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "file" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "url" VARCHAR(4096) NOT NULL
+);
+COMMENT ON COLUMN "file"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "file"."name" IS 'Имя';
+COMMENT ON COLUMN "file"."url" IS 'Ссылка';
+CREATE TABLE IF NOT EXISTS "clientfinance" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "amount" DECIMAL(10,2),
+    "date" DATE,
+    "act_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "client_id" INT NOT NULL REFERENCES "client" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "clientfinance"."amount" IS 'Сумма';
+COMMENT ON COLUMN "clientfinance"."date" IS 'Дата';
+COMMENT ON COLUMN "clientfinance"."act_id" IS 'Акт';
+COMMENT ON COLUMN "clientfinance"."client_id" IS 'Клиент';
+CREATE TABLE IF NOT EXISTS "financialtransaction" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "amount" DECIMAL(10,2) NOT NULL,
+    "transaction_date" DATE NOT NULL,
+    "fls" DECIMAL(10,2) NOT NULL,
+    "nds" DECIMAL(10,2) NOT NULL,
+    "amount_on_fls" DECIMAL(10,2) NOT NULL
+);
+COMMENT ON COLUMN "financialtransaction"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "financialtransaction"."amount" IS 'Сумма';
+COMMENT ON COLUMN "financialtransaction"."transaction_date" IS 'Дата транзакции';
+COMMENT ON COLUMN "financialtransaction"."fls" IS 'ФЛС';
+COMMENT ON COLUMN "financialtransaction"."nds" IS 'НДС';
+COMMENT ON COLUMN "financialtransaction"."amount_on_fls" IS 'Сумма на ФЛС';
+CREATE TABLE IF NOT EXISTS "inpersonreceipt" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "tracking_number" VARCHAR(255),
+    "client_id" INT NOT NULL REFERENCES "client" ("id") ON DELETE CASCADE,
+    "signed_document_id" INT REFERENCES "file" ("id") ON DELETE SET NULL
+);
+COMMENT ON COLUMN "inpersonreceipt"."tracking_number" IS 'Номер отслеживания';
+COMMENT ON COLUMN "inpersonreceipt"."client_id" IS 'Клиент';
+COMMENT ON COLUMN "inpersonreceipt"."signed_document_id" IS 'Подписанный документ';
+CREATE TABLE IF NOT EXISTS "learningform" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL
+);
+COMMENT ON COLUMN "learningform"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "learningform"."name" IS 'Название';
+CREATE TABLE IF NOT EXISTS "educationalprogram" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "date" DATE,
+    "quantity" INT,
+    "description" VARCHAR(255),
+    "fgos" VARCHAR(255),
+    "organizers" VARCHAR(255),
+    "price" DECIMAL(10,2),
+    "end_date" DATE,
+    "start_date" DATE,
+    "document_type_id" INT REFERENCES "documenttype" ("id") ON DELETE SET NULL,
+    "landing_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "learning_form_id" INT NOT NULL REFERENCES "learningform" ("id") ON DELETE CASCADE,
+    "presentation_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "program_type_id" INT NOT NULL REFERENCES "educationalprogramtype" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "educationalprogram"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "educationalprogram"."name" IS 'Название';
+COMMENT ON COLUMN "educationalprogram"."date" IS 'Дата';
+COMMENT ON COLUMN "educationalprogram"."quantity" IS 'Количество';
+COMMENT ON COLUMN "educationalprogram"."description" IS 'Описание';
+COMMENT ON COLUMN "educationalprogram"."fgos" IS 'ФГОС';
+COMMENT ON COLUMN "educationalprogram"."organizers" IS 'Организаторы';
+COMMENT ON COLUMN "educationalprogram"."price" IS 'Цена';
+COMMENT ON COLUMN "educationalprogram"."end_date" IS 'Дата окончания';
+COMMENT ON COLUMN "educationalprogram"."start_date" IS 'Дата начала';
+COMMENT ON COLUMN "educationalprogram"."document_type_id" IS 'Тип документа';
+COMMENT ON COLUMN "educationalprogram"."landing_id" IS 'Лендинг';
+COMMENT ON COLUMN "educationalprogram"."learning_form_id" IS 'Форма обучения';
+COMMENT ON COLUMN "educationalprogram"."presentation_id" IS 'Презентация';
+COMMENT ON COLUMN "educationalprogram"."program_type_id" IS 'Тип образовательной программы';
+CREATE TABLE IF NOT EXISTS "annotation" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "approval_date" DATE NOT NULL,
+    "document_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE,
+    "educational_program_id" INT NOT NULL REFERENCES "educationalprogram" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "annotation"."approval_date" IS 'Дата утверждения';
+COMMENT ON COLUMN "annotation"."document_id" IS 'Документ';
+COMMENT ON COLUMN "annotation"."educational_program_id" IS 'Образовательная программа';
+CREATE TABLE IF NOT EXISTS "educationalprogrammodule" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "academic_hours" INT NOT NULL,
+    "educational_program_id" INT NOT NULL REFERENCES "educationalprogram" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "educationalprogrammodule"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "educationalprogrammodule"."name" IS 'Название';
+COMMENT ON COLUMN "educationalprogrammodule"."academic_hours" IS 'Академические часы';
+COMMENT ON COLUMN "educationalprogrammodule"."educational_program_id" IS 'Образовательная программа';
+CREATE TABLE IF NOT EXISTS "clientgrade" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "grade" INT,
+    "quantity" INT,
+    "client_id" INT NOT NULL REFERENCES "client" ("id") ON DELETE CASCADE,
+    "program_module_id" INT NOT NULL REFERENCES "educationalprogrammodule" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "clientgrade"."grade" IS 'Оценка';
+COMMENT ON COLUMN "clientgrade"."quantity" IS 'Количество';
+COMMENT ON COLUMN "clientgrade"."client_id" IS 'Клиент';
+COMMENT ON COLUMN "clientgrade"."program_module_id" IS 'Модуль образовательной программы';
+CREATE TABLE IF NOT EXISTS "programstream" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "number" VARCHAR(50),
+    "date" DATE,
+    "educational_program_id" INT NOT NULL REFERENCES "educationalprogram" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "programstream"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "programstream"."number" IS 'Номер';
+COMMENT ON COLUMN "programstream"."date" IS 'Дата';
+COMMENT ON COLUMN "programstream"."educational_program_id" IS 'Образовательная программа';
+CREATE TABLE IF NOT EXISTS "approvedprogram" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "approval_date" DATE NOT NULL,
+    "document_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE,
+    "program_stream_id" INT NOT NULL REFERENCES "programstream" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "approvedprogram"."approval_date" IS 'Дата утверждения';
+COMMENT ON COLUMN "approvedprogram"."document_id" IS 'Документ';
+COMMENT ON COLUMN "approvedprogram"."program_stream_id" IS 'Поток образовательной программы';
+CREATE TABLE IF NOT EXISTS "classschedule" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "day_of_week" INT NOT NULL,
+    "start_time" TIMETZ NOT NULL,
+    "end_time" TIMETZ NOT NULL,
+    "program_stream_id" INT NOT NULL REFERENCES "programstream" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "classschedule"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "classschedule"."day_of_week" IS 'День недели';
+COMMENT ON COLUMN "classschedule"."start_time" IS 'Время начала';
+COMMENT ON COLUMN "classschedule"."end_time" IS 'Время окончания';
+COMMENT ON COLUMN "classschedule"."program_stream_id" IS 'Поток образовательной программы';
+CREATE TABLE IF NOT EXISTS "programstreamcurator" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "program_stream_id" INT NOT NULL REFERENCES "programstream" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "programstreamcurator"."name" IS 'Имя куратора';
+COMMENT ON COLUMN "programstreamcurator"."program_stream_id" IS 'Поток образовательной программы';
+CREATE TABLE IF NOT EXISTS "programstreammanager" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "educational_program_id" INT NOT NULL REFERENCES "educationalprogram" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "programstreammanager"."name" IS 'Имя менеджера';
+COMMENT ON COLUMN "programstreammanager"."educational_program_id" IS 'Образовательная программа';
+CREATE TABLE IF NOT EXISTS "programstreamteacher" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "program_stream_id" INT NOT NULL REFERENCES "programstream" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "programstreamteacher"."name" IS 'Имя преподавателя';
+COMMENT ON COLUMN "programstreamteacher"."program_stream_id" IS 'Поток образовательной программы';
+CREATE TABLE IF NOT EXISTS "registrationform" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "last_name" VARCHAR(255) NOT NULL,
+    "first_name" VARCHAR(255) NOT NULL,
+    "middle_name" VARCHAR(255) NOT NULL,
+    "email" VARCHAR(255) NOT NULL,
+    "birth_date" DATE NOT NULL,
+    "snils" VARCHAR(255) NOT NULL,
+    "passport_data" VARCHAR(255) NOT NULL,
+    "passport_issued_by" VARCHAR(255) NOT NULL,
+    "passport_issue_date" DATE NOT NULL,
+    "registration_address" VARCHAR(255) NOT NULL,
+    "index" VARCHAR(10) NOT NULL,
+    "actual_address" VARCHAR(255) NOT NULL,
+    "actual_index" VARCHAR(10) NOT NULL,
+    "mobile_phone" VARCHAR(20) NOT NULL,
+    "diploma_name" VARCHAR(255) NOT NULL,
+    "diploma_series" VARCHAR(20) NOT NULL,
+    "diploma_number" VARCHAR(20) NOT NULL,
+    "diploma_issue_date" DATE NOT NULL,
+    "application_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE,
+    "assessment_sheet_copy_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "diploma_copy_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE,
+    "education_level_id" INT NOT NULL REFERENCES "educationlevel" ("id") ON DELETE CASCADE,
+    "name_change_document_copy_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "passport_copy_main_page_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE,
+    "passport_copy_registration_page_id" INT NOT NULL REFERENCES "file" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "registrationform"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "registrationform"."last_name" IS 'Фамилия';
+COMMENT ON COLUMN "registrationform"."first_name" IS 'Имя';
+COMMENT ON COLUMN "registrationform"."middle_name" IS 'Отчество';
+COMMENT ON COLUMN "registrationform"."email" IS 'Электронная почта';
+COMMENT ON COLUMN "registrationform"."birth_date" IS 'Дата рождения';
+COMMENT ON COLUMN "registrationform"."snils" IS 'СНИЛС';
+COMMENT ON COLUMN "registrationform"."passport_data" IS 'Данные паспорта';
+COMMENT ON COLUMN "registrationform"."passport_issued_by" IS 'Кем выдан паспорт';
+COMMENT ON COLUMN "registrationform"."passport_issue_date" IS 'Дата выдачи паспорта';
+COMMENT ON COLUMN "registrationform"."registration_address" IS 'Адрес регистрации';
+COMMENT ON COLUMN "registrationform"."index" IS 'Индекс';
+COMMENT ON COLUMN "registrationform"."actual_address" IS 'Фактический адрес';
+COMMENT ON COLUMN "registrationform"."actual_index" IS 'Фактический индекс';
+COMMENT ON COLUMN "registrationform"."mobile_phone" IS 'Мобильный телефон';
+COMMENT ON COLUMN "registrationform"."diploma_name" IS 'Название диплома';
+COMMENT ON COLUMN "registrationform"."diploma_series" IS 'Серия диплома';
+COMMENT ON COLUMN "registrationform"."diploma_number" IS 'Номер диплома';
+COMMENT ON COLUMN "registrationform"."diploma_issue_date" IS 'Дата выдачи диплома';
+COMMENT ON COLUMN "registrationform"."application_id" IS 'Заявление';
+COMMENT ON COLUMN "registrationform"."assessment_sheet_copy_id" IS 'Копия оценочного листа';
+COMMENT ON COLUMN "registrationform"."diploma_copy_id" IS 'Копия диплома';
+COMMENT ON COLUMN "registrationform"."education_level_id" IS 'Уровень образования';
+COMMENT ON COLUMN "registrationform"."name_change_document_copy_id" IS 'Копия документа о смене имени';
+COMMENT ON COLUMN "registrationform"."passport_copy_main_page_id" IS 'Копия главной страницы паспорта';
+COMMENT ON COLUMN "registrationform"."passport_copy_registration_page_id" IS 'Копия страницы регистрации паспорта';
+CREATE TABLE IF NOT EXISTS "clienteducationalprogram" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "postpayment" BOOL NOT NULL  DEFAULT False,
+    "comment" VARCHAR(255),
+    "date_of_enrollment_order" DATE,
+    "date_of_expulsion_order" DATE,
+    "client_id" INT NOT NULL REFERENCES "client" ("id") ON DELETE CASCADE,
+    "client_type_id" INT NOT NULL REFERENCES "clienttype" ("id") ON DELETE CASCADE,
+    "contract_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "enrollment_order_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "expulsion_order_id" INT REFERENCES "file" ("id") ON DELETE SET NULL,
+    "program_stream_id" INT NOT NULL REFERENCES "programstream" ("id") ON DELETE CASCADE,
+    "registration_form_id" INT REFERENCES "registrationform" ("id") ON DELETE SET NULL,
+    "status_id" INT NOT NULL REFERENCES "educationalprogramstatus" ("id") ON DELETE CASCADE
+);
+COMMENT ON COLUMN "clienteducationalprogram"."id" IS 'Идентификатор';
+COMMENT ON COLUMN "clienteducationalprogram"."postpayment" IS 'Постоплата';
+COMMENT ON COLUMN "clienteducationalprogram"."comment" IS 'Комментарий';
+COMMENT ON COLUMN "clienteducationalprogram"."date_of_enrollment_order" IS 'Дата приказа о зачислении';
+COMMENT ON COLUMN "clienteducationalprogram"."date_of_expulsion_order" IS 'Дата приказа об отчислении';
+COMMENT ON COLUMN "clienteducationalprogram"."client_id" IS 'Клиент';
+COMMENT ON COLUMN "clienteducationalprogram"."client_type_id" IS 'Тип клиента';
+COMMENT ON COLUMN "clienteducationalprogram"."contract_id" IS 'Контракт';
+COMMENT ON COLUMN "clienteducationalprogram"."enrollment_order_id" IS 'Приказ о зачислении';
+COMMENT ON COLUMN "clienteducationalprogram"."expulsion_order_id" IS 'Приказ об отчислении';
+COMMENT ON COLUMN "clienteducationalprogram"."program_stream_id" IS 'Поток образовательной программы';
+COMMENT ON COLUMN "clienteducationalprogram"."registration_form_id" IS 'Регистрационная форма';
+COMMENT ON COLUMN "clienteducationalprogram"."status_id" IS 'Статус образовательной программы';
+CREATE TABLE IF NOT EXISTS "clienteducationalprograminterimorder" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "date" DATE,
+    "client_educational_program_id" INT NOT NULL REFERENCES "clienteducationalprogram" ("id") ON DELETE CASCADE,
+    "order_id" INT REFERENCES "file" ("id") ON DELETE SET NULL
+);
+COMMENT ON COLUMN "clienteducationalprograminterimorder"."date" IS 'Дата';
+COMMENT ON COLUMN "clienteducationalprograminterimorder"."client_educational_program_id" IS 'Образовательная программа клиента';
+COMMENT ON COLUMN "clienteducationalprograminterimorder"."order_id" IS 'Приказ';
+CREATE TABLE IF NOT EXISTS "_systemuser" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "login" VARCHAR(255) NOT NULL,
+    "password" VARCHAR(255) NOT NULL
+);
+10-28-24 18:48:42 DEBUG: Closed connection pool None with params: {'host': 'postgres_development', 'port': 5432, 'user': 'user', 'database': 'example', 'min_size': 1, 'max_size': 5, 'connection_class': <class 'asyncpg.connection.Connection'>, 'loop': None, 'server_settings': {}}
+10-28-24 18:48:42 INFO: Tortoise-ORM shutdown

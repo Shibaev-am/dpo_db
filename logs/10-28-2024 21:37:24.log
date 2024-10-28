@@ -1,0 +1,19 @@
+10-28-24 21:37:24 INFO: [main] Loading Tortoise ORM...
+10-28-24 21:37:24 ERROR: Task exception was never retrieved
+future: <Task finished name='Task-2' coro=<Tortoise.generate_schemas() done, defined at /Users/mikhail/Projects/dpo_db/.venv/lib/python3.12/site-packages/tortoise/__init__.py:562> exception=ConfigurationError('You have to call .init() first before generating schemas')>
+Traceback (most recent call last):
+  File "/Users/mikhail/Projects/dpo_db/.venv/lib/python3.12/site-packages/tortoise/__init__.py", line 574, in generate_schemas
+    raise ConfigurationError("You have to call .init() first before generating schemas")
+tortoise.exceptions.ConfigurationError: You have to call .init() first before generating schemas
+10-28-24 21:37:24 ERROR: Task exception was never retrieved
+future: <Task finished name='Task-3' coro=<ConnectionHandler.close_all() done, defined at /Users/mikhail/Projects/dpo_db/.venv/lib/python3.12/site-packages/tortoise/connection.py:179> exception=ConfigurationError('DB configuration not initialised. Make sure to call Tortoise.init with a valid configuration before attempting to create connections.')>
+Traceback (most recent call last):
+  File "/Users/mikhail/Projects/dpo_db/.venv/lib/python3.12/site-packages/tortoise/connection.py", line 188, in close_all
+    tasks = [conn.close() for conn in self.all()]
+                                      ^^^^^^^^^^
+  File "/Users/mikhail/Projects/dpo_db/.venv/lib/python3.12/site-packages/tortoise/connection.py", line 177, in all
+    return [self.get(alias) for alias in self.db_config]
+                                         ^^^^^^^^^^^^^^
+  File "/Users/mikhail/Projects/dpo_db/.venv/lib/python3.12/site-packages/tortoise/connection.py", line 48, in db_config
+    raise ConfigurationError(
+tortoise.exceptions.ConfigurationError: DB configuration not initialised. Make sure to call Tortoise.init with a valid configuration before attempting to create connections.

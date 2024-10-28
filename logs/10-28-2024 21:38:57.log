@@ -1,7 +1,0 @@
-10-28-24 21:38:57 INFO: [main] Loading Tortoise ORM...
-10-28-24 21:38:58 DEBUG: 1 change detected: {(<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/logs/10-28-2024 21:38:58.log')}
-10-28-24 21:39:38 DEBUG: 1 change detected: {(<Change.modified: 2>, '/Users/mikhail/Projects/dpo_db/.git/FETCH_HEAD')}
-10-28-24 21:39:39 DEBUG: 3 changes detected: {(<Change.deleted: 3>, '/Users/mikhail/Projects/dpo_db/.git/objects/maintenance.lock'), (<Change.modified: 2>, '/Users/mikhail/Projects/dpo_db/.git/FETCH_HEAD'), (<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/.git/objects/maintenance.lock')}
-10-28-24 21:40:19 DEBUG: 1 change detected: {(<Change.modified: 2>, '/Users/mikhail/Projects/dpo_db/src/main.py')}
-10-28-24 21:40:20 DEBUG: 3 changes detected: {(<Change.deleted: 3>, '/Users/mikhail/Projects/dpo_db/src/__pycache__/main.cpython-312.pyc.4353713280'), (<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/src/__pycache__/main.cpython-312.pyc.4353713280'), (<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/src/__pycache__/main.cpython-312.pyc')}
-10-28-24 21:40:20 DEBUG: 1 change detected: {(<Change.added: 1>, '/Users/mikhail/Projects/dpo_db/logs/10-28-2024 21:40:20.log')}

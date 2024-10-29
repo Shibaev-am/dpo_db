@@ -25,9 +25,6 @@ class Settings:
     POSTGRES_PORT: int = int(os.environ.get("POSTGRES_PORT", "5432"))
     POSTGRES_DB: str = os.environ.get("POSTGRES_DB", "example")
 
-    REDIS_HOST: str = os.environ.get("REDIS_HOST", "localhost")
-    REDIS_PORT: int = int(os.environ.get("REDIS_PORT", "6379"))
-
     MODE: Mode = Mode(os.environ.get("MODE", "development"))
 
     JWT_SECRET: SecretStr = SecretStr(os.environ.get("JWT_SECRET", "jwt_secret"))

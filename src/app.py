@@ -1,20 +1,43 @@
 import datetime
 from enum import StrEnum
 import functools
+import inspect
 import time
 from typing import Any, Dict, List, Optional
 import bcrypt
 from fastapi import Depends, FastAPI, HTTPException, Query
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel
 from tortoise import Model
 from settings import Settings
 from models.system import _SystemUser
 import models.dpo
 from tortoise.contrib.pydantic import pydantic_model_creator
+from settings import Settings
+from tortoise.contrib.fastapi import register_tortoise
+from fastapi.middleware.cors import CORSMiddleware
+from tortoise.expressions import Q
+
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+register_tortoise(
+    app,
+    db_url=f"postgres://{Settings.POSTGRES_USER}:{Settings.POSTGRES_PASSWORD.get_secret_value()}@{Settings.POSTGRES_HOST}:{Settings.POSTGRES_PORT}/{Settings.POSTGRES_DB}",
+    modules={"models": ["models.dpo", "models.system"]},
+    generate_schemas=True,
+    add_exception_handlers=True,
+)
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth")
 
@@ -101,11 +124,36 @@ def _get_entities():
 
 @app.get("/api/entities")
 async def get_entities(user: _SystemUser = Depends(get_user)) -> List[Dict[Any, Any]]:
-    return _get_entities()
+    classes = inspect.getmembers(models.dpo, inspect.isclass)
+    entities = []
+    for name, cls in classes:
+        if cls == models.dpo.BaseModel or not issubclass(cls, Model):
+            continue
+        entities.append({
+            "name": name,
+            "description": getattr(cls.Meta, 'description', None)
+        })
+    return entities
+    # return _get_entities()
 
 
 class PostEntriesPayload(BaseModel):
     selector: Dict[str, Any]
+
+
+@app.get("/api/entity/structure")
+async def get_schema(
+    entity: str = Query(...),
+    user: _SystemUser = Depends(get_user),
+):
+    cls: Optional[type[Model]] = getattr(models.dpo, entity, None)
+    if not cls:
+        raise HTTPException(status_code=404, detail="Entity not found")
+    schema = pydantic_model_creator(cls).model_json_schema()
+    if "$defs" in schema:
+        schema.pop("$defs")
+
+    return {"schema": schema}
 
 
 @app.post("/api/entry")
@@ -122,7 +170,7 @@ async def post_entries(
     cls_pedantic = pydantic_model_creator(cls)
 
     offset = (page - 1) * page_size
-    entries = cls.filter(**payload.selector).offset(offset).limit(page_size + 1)
+    entries = cls.filter(**payload.selector).offset(offset).limit(page_size + 1).order_by("id")
     entries = await cls_pedantic.from_queryset(entries)
 
     has_next = False
@@ -156,16 +204,11 @@ def create_token(user_id: int, expire_in_minutes: int, type: TokenType):
         algorithm=Settings.JWT_ALGORITHM,
     )
 
-
-class PostAuthPayload(BaseModel):
-    login: str
-    password: SecretStr
-
-
 @app.post("/api/auth")
-async def post_auth(payload: PostAuthPayload):
+async def post_auth(payload: OAuth2PasswordRequestForm = Depends()):
+    #! OAuth2PasswordRequestForm нужен для Swagger  https://fastapi.tiangolo.com/tutorial/security/simple-oauth2/#oauth2passwordrequestform
 
-    user = await authenticate_user(payload.login, payload.password.get_secret_value())
+    user = await authenticate_user(payload.username, payload.password)
 
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -223,6 +266,8 @@ async def put_entity(
 class DeleteEntryPayload(BaseModel):
     selector: Dict[str, Any]
 
+class DeleteEntriesPayload(BaseModel):
+    ids: list[int]
 
 @app.delete("/api/entry")
 async def delete_entity(
@@ -235,3 +280,14 @@ async def delete_entity(
     if not cls:
         raise HTTPException(status_code=404, detail="Entity not found")
     await cls.filter(**payload.selector).limit(limit).delete()
+
+@app.delete("/api/entry/multiple")
+async def delete_entries(
+    payload: DeleteEntriesPayload,
+    entity: str = Query(...),
+    user: _SystemUser = Depends(get_user),
+):
+    cls: Optional[type[Model]] = getattr(models.dpo, entity, None)
+    if not cls:
+        raise HTTPException(status_code=404, detail="Entity not found")
+    await cls.filter(Q(id__in=payload.ids)).delete()

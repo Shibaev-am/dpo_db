@@ -149,7 +149,8 @@ async def get_schema(
     cls: Optional[type[Model]] = getattr(models.dpo, entity, None)
     if not cls:
         raise HTTPException(status_code=404, detail="Entity not found")
-    schema = pydantic_model_creator(cls).model_json_schema()
+                                                        # ref_template, чтобы не было префиксов у названия модели
+    schema = pydantic_model_creator(cls).model_json_schema(ref_template='{model}')
     if "$defs" in schema:
         schema.pop("$defs")
 
@@ -261,6 +262,53 @@ async def put_entity(
             )
         else:
             await cls.create(**entry)
+
+@app.post("/api/entry/create",
+    description="Creates an empty entity *amount* times, returns an array of ids of created entities")
+async def create_entries(
+    amount: int = Query(default=1, ge=1),
+    entity: str = Query(...),
+    user: _SystemUser = Depends(get_user),
+):
+    ids = []
+    cls: Optional[type[Model]] = getattr(models.dpo, entity, None)
+    if not cls:
+            raise HTTPException(status_code=404, detail="Entity not found")
+    for _i in range(amount):
+        new_entry = await cls.create()
+        ids.append(new_entry.id)
+
+    return{"ids": ids}
+
+
+
+# ищет модель по имени внешнего ключа entity и возвращает все её существующие записи в бд
+@app.get("/api/entry/by")
+async def get_entries_by_foreign_key(
+    entity: str = Query(...),
+    foreignKey: str = Query(...),
+    user: _SystemUser = Depends(get_user),
+):
+    cls: Optional[type[Model]] = getattr(models.dpo, entity, None)
+
+    if not cls:
+        raise HTTPException(status_code=404, detail="Entity not found")
+    
+    model_path = ""
+    model_classname = ""
+    classes = dict(inspect.getmembers(models.dpo, inspect.isclass))
+
+    for i in cls.describe()['fk_fields']:
+        if(i['name'] == foreignKey):
+            model_path = i['python_type']
+            model_classname = model_path.split('.')[1]
+            break
+    if model_classname in classes:
+        foreign_cls: type[Model] = classes[model_classname]
+        entries = await foreign_cls.all()
+        return {"entries": entries}
+    
+    raise HTTPException(status_code=404, detail="Foreign entity not found")
 
 
 class DeleteEntryPayload(BaseModel):

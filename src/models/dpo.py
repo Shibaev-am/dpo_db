@@ -4,8 +4,8 @@ from models.base import BaseModel
 
 class File(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    name = fields.CharField(max_length=255, null=False, description="Имя")
-    url = fields.CharField(max_length=4096, null=False, description="Ссылка")
+    name = fields.CharField(max_length=255, null=True, description="Имя")
+    url = fields.CharField(max_length=4096, null=True, description="Ссылка")
 
     class Meta:
         description = "Файл"
@@ -13,7 +13,7 @@ class File(BaseModel):
 
 class EducationLevel(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    name = fields.CharField(max_length=255, null=False, description="Название")
+    name = fields.CharField(max_length=255, null=True, description="Название")
 
     class Meta:
         description = "Тип образования"
@@ -21,27 +21,27 @@ class EducationLevel(BaseModel):
 
 class RegistrationForm(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    last_name = fields.CharField(max_length=255, null=False, description="Фамилия")
-    first_name = fields.CharField(max_length=255, null=False, description="Имя")
-    middle_name = fields.CharField(max_length=255, null=False, description="Отчество")
+    last_name = fields.CharField(max_length=255, null=True, description="Фамилия")
+    first_name = fields.CharField(max_length=255, null=True, description="Имя")
+    middle_name = fields.CharField(max_length=255, null=True, description="Отчество")
     email = fields.CharField(
-        max_length=255, null=False, description="Электронная почта"
+        max_length=255, null=True, description="Электронная почта"
     )
-    birth_date = fields.DateField(null=False, description="Дата рождения")
-    snils = fields.CharField(max_length=255, null=False, description="СНИЛС")
+    birth_date = fields.DateField(null=True, description="Дата рождения")
+    snils = fields.CharField(max_length=255, null=True, description="СНИЛС")
     passport_data = fields.CharField(
-        max_length=255, null=False, description="Данные паспорта"
+        max_length=255, null=True, description="Данные паспорта"
     )
     passport_issued_by = fields.CharField(
-        max_length=255, null=False, description="Кем выдан паспорт"
+        max_length=255, null=True, description="Кем выдан паспорт"
     )
     passport_issue_date = fields.DateField(
-        null=False, description="Дата выдачи паспорта"
+        null=True, description="Дата выдачи паспорта"
     )
 
     passport_copy_main_page = fields.ForeignKeyField(
         "models.File",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Копия главной страницы паспорта",
     )
@@ -49,48 +49,48 @@ class RegistrationForm(BaseModel):
     passport_copy_registration_page = fields.ForeignKeyField(
         "models.File",
         related_name="registration_forms_pass_reg",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Копия страницы регистрации паспорта",
     )
 
     registration_address = fields.CharField(
-        max_length=255, null=False, description="Адрес регистрации"
+        max_length=255, null=True, description="Адрес регистрации"
     )
-    index = fields.CharField(max_length=10, null=False, description="Индекс")
+    index = fields.CharField(max_length=10, null=True, description="Индекс")
     actual_address = fields.CharField(
-        max_length=255, null=False, description="Фактический адрес"
+        max_length=255, null=True, description="Фактический адрес"
     )
     actual_index = fields.CharField(
-        max_length=10, null=False, description="Фактический индекс"
+        max_length=10, null=True, description="Фактический индекс"
     )
     mobile_phone = fields.CharField(
-        max_length=20, null=False, description="Мобильный телефон"
+        max_length=20, null=True, description="Мобильный телефон"
     )
 
     education_level = fields.ForeignKeyField(
         "models.EducationLevel",
         related_name="registration_forms",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Уровень образования",
     )
 
     diploma_name = fields.CharField(
-        max_length=255, null=False, description="Название диплома"
+        max_length=255, null=True, description="Название диплома"
     )
     diploma_series = fields.CharField(
-        max_length=20, null=False, description="Серия диплома"
+        max_length=20, null=True, description="Серия диплома"
     )
     diploma_number = fields.CharField(
-        max_length=20, null=False, description="Номер диплома"
+        max_length=20, null=True, description="Номер диплома"
     )
-    diploma_issue_date = fields.DateField(null=False, description="Дата выдачи диплома")
+    diploma_issue_date = fields.DateField(null=True, description="Дата выдачи диплома")
 
     diploma_copy = fields.ForeignKeyField(
         "models.File",
         related_name="diploma_forms",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Копия диплома",
     )
@@ -112,7 +112,7 @@ class RegistrationForm(BaseModel):
     application = fields.ForeignKeyField(
         "models.File",
         related_name="registration_forms_application",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Заявление",
     )
@@ -123,7 +123,7 @@ class RegistrationForm(BaseModel):
 
 class Acquiring(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    name = fields.CharField(max_length=255, null=False, description="Название")
+    name = fields.CharField(max_length=255, null=True, description="Название")
 
     class Meta:
         description = "Эквайринг"
@@ -131,12 +131,12 @@ class Acquiring(BaseModel):
 
 class Client(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    last_name = fields.CharField(max_length=255, null=False, description="Фамилия")
-    first_name = fields.CharField(max_length=255, null=False, description="Имя")
-    middle_name = fields.CharField(max_length=255, null=False, description="Отчество")
-    birth_date = fields.DateField(null=False, description="Дата рождения")
+    last_name = fields.CharField(max_length=255, null=True, description="Фамилия")
+    first_name = fields.CharField(max_length=255, null=True, description="Имя")
+    middle_name = fields.CharField(max_length=255, null=True, description="Отчество")
+    birth_date = fields.DateField(null=True, description="Дата рождения")
     email = fields.CharField(
-        max_length=255, null=False, description="Электронная почта"
+        max_length=255, null=True, description="Электронная почта"
     )
 
     class Meta:
@@ -147,7 +147,7 @@ class InPersonReceipt(BaseModel):
     client = fields.ForeignKeyField(
         "models.Client",
         related_name="in_person_receipts",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Клиент",
     )
@@ -185,7 +185,7 @@ class ClientFinance(BaseModel):
         "models.Client",
         related_name="finances",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Клиент",
     )
     amount = fields.DecimalField(
@@ -208,7 +208,7 @@ class ClientFinance(BaseModel):
 class EducationalProgramStatus(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
     status_name = fields.CharField(
-        max_length=255, null=False, description="Название статуса"
+        max_length=255, null=True, description="Название статуса"
     )
 
     class Meta:
@@ -217,7 +217,7 @@ class EducationalProgramStatus(BaseModel):
 
 class ClientType(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    name = fields.CharField(max_length=255, null=False, description="Название")
+    name = fields.CharField(max_length=255, null=True, description="Название")
 
     class Meta:
         description = "Тип клиента"
@@ -225,7 +225,7 @@ class ClientType(BaseModel):
 
 class EducationalProgramType(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    name = fields.CharField(max_length=255, null=False, description="Название")
+    name = fields.CharField(max_length=255, null=True, description="Название")
 
     class Meta:
         description = "Тип образовательной программы"
@@ -233,7 +233,7 @@ class EducationalProgramType(BaseModel):
 
 class DocumentType(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    name = fields.CharField(max_length=255, null=False, description="Название")
+    name = fields.CharField(max_length=255, null=True, description="Название")
 
     class Meta:
         description = "Тип документа, выдаваемового после прохождения обучения"
@@ -241,7 +241,7 @@ class DocumentType(BaseModel):
 
 class LearningForm(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    name = fields.CharField(max_length=255, null=False, description="Название")
+    name = fields.CharField(max_length=255, null=True, description="Название")
 
     class Meta:
         description = "Форма обучения"
@@ -249,12 +249,12 @@ class LearningForm(BaseModel):
 
 class EducationalProgram(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    name = fields.CharField(max_length=255, null=False, description="Название")
+    name = fields.CharField(max_length=255, null=True, description="Название")
 
     learning_form = fields.ForeignKeyField(
         "models.LearningForm",
         related_name="educational_programs",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Форма обучения",
     )
@@ -262,7 +262,7 @@ class EducationalProgram(BaseModel):
     program_type = fields.ForeignKeyField(
         "models.EducationalProgramType",
         related_name="educational_programs",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Тип образовательной программы",
     )
@@ -314,7 +314,7 @@ class ProgramStream(BaseModel):
     educational_program = fields.ForeignKeyField(
         "models.EducationalProgram",
         related_name="program_streams",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Образовательная программа",
     )
@@ -332,14 +332,14 @@ class ClientEducationalProgram(BaseModel):
         "models.Client",
         related_name="educational_programs",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Клиент",
     )
     program_stream = fields.ForeignKeyField(
         "models.ProgramStream",
         related_name="educational_programs",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Поток образовательной программы",
     )
     contract = fields.ForeignKeyField(
@@ -350,7 +350,7 @@ class ClientEducationalProgram(BaseModel):
         description="Контракт",
     )
     postpayment = fields.BooleanField(
-        default=False, null=False, description="Постоплата"
+        default=False, null=True, description="Постоплата"
     )
     registration_form = fields.ForeignKeyField(
         "models.RegistrationForm",
@@ -363,14 +363,14 @@ class ClientEducationalProgram(BaseModel):
         "models.ClientType",
         related_name="educational_programs",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Тип клиента",
     )
     status = fields.ForeignKeyField(
         "models.EducationalProgramStatus",
         related_name="educational_programs",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Статус образовательной программы",
     )
     comment = fields.CharField(max_length=255, null=True, description="Комментарий")
@@ -406,7 +406,7 @@ class ClientEducationalProgramInterimOrder(BaseModel):
         "models.ClientEducationalProgram",
         related_name="interim_orders",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Образовательная программа клиента",
     )
     order = fields.ForeignKeyField(
@@ -429,11 +429,11 @@ class ClientParent(BaseModel):
         "models.Client",
         related_name="parents",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Клиент",
     )
     parent_name = fields.CharField(
-        max_length=255, null=False, description="Имя родителя"
+        max_length=255, null=True, description="Имя родителя"
     )
 
     class Meta:
@@ -442,13 +442,13 @@ class ClientParent(BaseModel):
 
 class EducationalProgramModule(BaseModel):
     id = fields.IntField(pk=True, description="Идентификатор")
-    name = fields.CharField(max_length=255, null=False, description="Название")
-    academic_hours = fields.IntField(null=False, description="Академические часы")
+    name = fields.CharField(max_length=255, null=True, description="Название")
+    academic_hours = fields.IntField(null=True, description="Академические часы")
 
     educational_program = fields.ForeignKeyField(
         "models.EducationalProgram",
         related_name="modules",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Образовательная программа",
     )
@@ -462,14 +462,14 @@ class ClientGrade(BaseModel):
         "models.EducationalProgramModule",
         related_name="client_grades",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Модуль образовательной программы",
     )
     client = fields.ForeignKeyField(
         "models.Client",
         related_name="client_grades",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Клиент",
     )
     grade = fields.IntField(null=True, description="Оценка")
@@ -484,12 +484,12 @@ class ProgramStreamTeacher(BaseModel):
         "models.ProgramStream",
         related_name="teachers",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Поток образовательной программы",
     )
     name = fields.CharField(
         max_length=255,
-        null=False,
+        null=True,
         description="Имя преподавателя",
     )
 
@@ -502,12 +502,12 @@ class ProgramStreamManager(BaseModel):
         "models.EducationalProgram",
         related_name="managers",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Образовательная программа",
     )
     name = fields.CharField(
         max_length=255,
-        null=False,
+        null=True,
         description="Имя менеджера",
     )
 
@@ -520,12 +520,12 @@ class ProgramStreamCurator(BaseModel):
         "models.ProgramStream",
         related_name="curators",
         on_delete=fields.CASCADE,
-        null=False,
+        null=True,
         description="Поток образовательной программы",
     )
     name = fields.CharField(
         max_length=255,
-        null=False,
+        null=True,
         description="Имя куратора",
     )
 
@@ -537,15 +537,15 @@ class Annotation(BaseModel):
     educational_program = fields.ForeignKeyField(
         "models.EducationalProgram",
         related_name="annotations",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Образовательная программа",
     )
-    approval_date = fields.DateField(null=False, description="Дата утверждения")
+    approval_date = fields.DateField(null=True, description="Дата утверждения")
     document = fields.ForeignKeyField(
         "models.File",
         related_name="annotations",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Документ",
     )
@@ -558,18 +558,18 @@ class ApprovedProgram(BaseModel):
     program_stream = fields.ForeignKeyField(
         "models.ProgramStream",
         related_name="approved_programs",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Поток образовательной программы",
     )
     approval_date = fields.DateField(
-        null=False,
+        null=True,
         description="Дата утверждения",
     )
     document = fields.ForeignKeyField(
         "models.File",
         related_name="approved_programs",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Документ",
     )
@@ -584,14 +584,14 @@ class ClassSchedule(BaseModel):
     program_stream = fields.ForeignKeyField(
         "models.ProgramStream",
         related_name="class_schedules",
-        null=False,
+        null=True,
         on_delete=fields.CASCADE,
         description="Поток образовательной программы",
     )
 
-    day_of_week = fields.IntField(null=False, description="День недели")
-    start_time = fields.TimeField(null=False, description="Время начала")
-    end_time = fields.TimeField(null=False, description="Время окончания")
+    day_of_week = fields.IntField(null=True, description="День недели")
+    start_time = fields.TimeField(null=True, description="Время начала")
+    end_time = fields.TimeField(null=True, description="Время окончания")
 
     class Meta:
         description = "Время занятий потока образовательной программы"
